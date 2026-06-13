@@ -59,6 +59,8 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define HCSR04_TRIG_Pin GPIO_PIN_4
 #define HCSR04_TRIG_GPIO_Port GPIOA
+#define DHT11_DATA_Pin GPIO_PIN_5
+#define DHT11_DATA_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 
