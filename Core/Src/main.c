@@ -62,7 +62,6 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-// HCSR04 超声波测距延时函数 (72MHz 系统时钟)
 void Delay_us_Rough(uint32_t us) {
     uint32_t count = us * (72 / 4); 
     while(count--) {
@@ -70,7 +69,6 @@ void Delay_us_Rough(uint32_t us) {
     }
 }
 
-// HCSR04 引脚 Trig 端口输出高电平至少 10us 来触发测距
 void HCSR04_Trigger(void) {
 
     HAL_GPIO_WritePin(HCSR04_TRIG_GPIO_Port, HCSR04_TRIG_Pin, GPIO_PIN_SET);
@@ -118,56 +116,45 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  // 在 while 外面定义一个静态变量，记录上次读取的时间
   static uint32_t last_dht11_time = 0;
- while (1) 
- {        
-        /* USER CODE BEGIN 3 */
-        
-        // 1. 发起测距
-        if (hcsr04.state == HCSR04_IDLE) {
-            hcsr04.state = HCSR04_WAIT_RISING; // 设置状态机为等待上升沿
-            HCSR04_Trigger();                  // 发射超声波
+
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+            if (hcsr04.state == HCSR04_IDLE) {
+            hcsr04.state = HCSR04_WAIT_RISING; 
+            HCSR04_Trigger();                 
         }
         
-        // 2. 检查测距是否完成
         if (hcsr04.state == HCSR04_FINISH) {
-            // 声速 340m/s，转换为 0.017 cm/us 
-            // 如果高电平时间超过约 25000 us (即超过 4 米)，视为无效数据或超时
-            if(hcsr04.high_level_time_us < 25000) {
+              if(hcsr04.high_level_time_us < 25000) {
                 hcsr04.distance_cm = hcsr04.high_level_time_us * 0.017f;
             } else {
-                hcsr04.distance_cm = -1.0f; // 错误值标记
+                hcsr04.distance_cm = -1.0f;
             }
             
-            // 这里可以暂时代替 OLED，先用 Debug 调试模式看变量 hcsr04.distance_cm 的值
-            // 或者通过 printf 发送到串口打印
-            
-            // 延时一段时间再进行下一次测距 (避免超声波余波干扰)
+ 
             HAL_Delay(100); 
             hcsr04.state = HCSR04_IDLE;
             debug_printf("Distance: %.2f cm\r\n", hcsr04.distance_cm);
         }      
-        // --- 3. 读取温湿度 ---
-        // 每隔 2000 毫秒 (2秒) 才去唤醒一次 DHT11
         if (HAL_GetTick() - last_dht11_time >= 2000) {
-            last_dht11_time = HAL_GetTick(); // 更新时间戳
+            last_dht11_time = HAL_GetTick();
             
             if (DHT11_Read_Data(&env_data) == 0) {
-                printf("[main.c:xxx] Temp: %d.%d C, Hum: %d.%d %%\r\n", 
+                debug_printf("[main.c:xxx] Temp: %d.%d C, Hum: %d.%d %%\r\n", 
                         env_data.temp_int, env_data.temp_dec, 
                         env_data.hum_int, env_data.hum_dec);
             } else {
-                printf("[main.c:xxx] DHT11 Error!\r\n");
+                debug_printf("[main.c:xxx] DHT11 Error!\r\n");
             }
         }
-  /* USER CODE END WHILE */
-  
-  /* USER CODE BEGIN 3 */
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
-
 /**
   * @brief System Clock Configuration
   * @retval None
