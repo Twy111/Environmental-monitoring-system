@@ -13,5 +13,5 @@ typedef struct {
 
 // º¯ÊıÉùÃ÷
 uint8_t DHT11_Read_Data(DHT11_Data_TypeDef *DHT11_Data);
-
+void DHT11_Warmup(DHT11_Data_TypeDef *DHT11_Data);
 #endif

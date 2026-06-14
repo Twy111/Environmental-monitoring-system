@@ -62,17 +62,30 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-void Delay_us_Rough(uint32_t us) {
-    uint32_t count = us * (72 / 4); 
-    while(count--) {
-        __NOP();
-    }
+// void Delay_us_Rough(uint32_t us) {
+//     uint32_t count = us * (72 / 4); 
+//     while(count--) {
+//         __NOP();
+//     }
+// }
+// 初始化 DWT
+void DWT_Init(void) {
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    DWT->CYCCNT = 0;
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+}
+
+// 微秒级延时函数
+void Delay_us(uint32_t us) {
+    uint32_t startTick = DWT->CYCCNT;
+    uint32_t delayTicks = us * (SystemCoreClock / 1000000);
+    while (DWT->CYCCNT - startTick < delayTicks);
 }
 
 void HCSR04_Trigger(void) {
 
     HAL_GPIO_WritePin(HCSR04_TRIG_GPIO_Port, HCSR04_TRIG_Pin, GPIO_PIN_SET);
-    Delay_us_Rough(15); 
+    Delay_us(15); 
     HAL_GPIO_WritePin(HCSR04_TRIG_GPIO_Port, HCSR04_TRIG_Pin, GPIO_PIN_RESET);
 }
 /* USER CODE END 0 */
@@ -110,14 +123,13 @@ int main(void)
   MX_USART2_UART_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
+  DWT_Init();   
   HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_1);
-	
+	static uint32_t last_dht11_time = 0;
+  DHT11_Warmup(&env_data);
   /* USER CODE END 2 */
 
   /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  static uint32_t last_dht11_time = 0;
-
   /* USER CODE BEGIN WHILE */
   while (1)
   {
@@ -138,16 +150,16 @@ int main(void)
             hcsr04.state = HCSR04_IDLE;
             debug_printf("Distance: %.2f cm\r\n", hcsr04.distance_cm);
         }      
-        if (HAL_GetTick() - last_dht11_time >= 2000) {
-            last_dht11_time = HAL_GetTick();
+        if (HAL_GetTick() - last_dht11_time >= 1000) {
             
             if (DHT11_Read_Data(&env_data) == 0) {
-                debug_printf("[main.c:xxx] Temp: %d.%d C, Hum: %d.%d %%\r\n", 
+                debug_printf("Temp: %d.%d C, Hum: %d.%d %%\r\n", 
                         env_data.temp_int, env_data.temp_dec, 
                         env_data.hum_int, env_data.hum_dec);
             } else {
-                debug_printf("[main.c:xxx] DHT11 Error!\r\n");
+                debug_printf("DHT11 Error!\r\n");
             }
+            last_dht11_time = HAL_GetTick();
         }
     /* USER CODE END WHILE */
 
