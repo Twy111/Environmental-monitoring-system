@@ -25,10 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "dht11.h"
-#include "hcsr04.h"
-#include "com_debug.h"
-
+#include "App_FreeRTOS_Task.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,8 +46,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-extern volatile HCSR04_InfoTypeDef hcsr04;
-DHT11_Data_TypeDef env_data;
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -68,26 +65,7 @@ void SystemClock_Config(void);
 //         __NOP();
 //     }
 // }
-// 初始化 DWT
-void DWT_Init(void) {
-    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-    DWT->CYCCNT = 0;
-    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
-}
-
-// 微秒级延时函数
-void Delay_us(uint32_t us) {
-    uint32_t startTick = DWT->CYCCNT;
-    uint32_t delayTicks = us * (SystemCoreClock / 1000000);
-    while (DWT->CYCCNT - startTick < delayTicks);
-}
-
-void HCSR04_Trigger(void) {
-
-    HAL_GPIO_WritePin(HCSR04_TRIG_GPIO_Port, HCSR04_TRIG_Pin, GPIO_PIN_SET);
-    Delay_us(15); 
-    HAL_GPIO_WritePin(HCSR04_TRIG_GPIO_Port, HCSR04_TRIG_Pin, GPIO_PIN_RESET);
-}
+extern DHT11_Data_TypeDef env_data;
 /* USER CODE END 0 */
 
 /**
@@ -125,7 +103,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
   DWT_Init();   
   HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_1);
-	static uint32_t last_dht11_time = 0;
   DHT11_Warmup(&env_data);
   /* USER CODE END 2 */
 
@@ -133,40 +110,14 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-            if (hcsr04.state == HCSR04_IDLE) {
-            hcsr04.state = HCSR04_WAIT_RISING; 
-            HCSR04_Trigger();                 
-        }
-        
-        if (hcsr04.state == HCSR04_FINISH) {
-              if(hcsr04.high_level_time_us < 25000) {
-                hcsr04.distance_cm = hcsr04.high_level_time_us * 0.017f;
-            } else {
-                hcsr04.distance_cm = -1.0f;
-            }
-            
- 
-            HAL_Delay(100); 
-            hcsr04.state = HCSR04_IDLE;
-            debug_printf("Distance: %.2f cm\r\n", hcsr04.distance_cm);
-        }      
-        if (HAL_GetTick() - last_dht11_time >= 1000) {
-            
-            if (DHT11_Read_Data(&env_data) == 0) {
-                debug_printf("Temp: %d.%d C, Hum: %d.%d %%\r\n", 
-                        env_data.temp_int, env_data.temp_dec, 
-                        env_data.hum_int, env_data.hum_dec);
-            } else {
-                debug_printf("DHT11 Error!\r\n");
-            }
-            last_dht11_time = HAL_GetTick();
-        }
+      App_FreeRTOS_Start();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
+
 /**
   * @brief System Clock Configuration
   * @retval None
@@ -209,6 +160,28 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM4 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM4)
+  {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+
+  /* USER CODE END Callback 1 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.

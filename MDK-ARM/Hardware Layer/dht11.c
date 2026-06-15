@@ -63,11 +63,11 @@ uint8_t DHT11_Read_Data(DHT11_Data_TypeDef *DHT11_Data) {
     // --- 第一步：主机发送起始信号 ---
     DHT11_Mode_Output();
     HAL_GPIO_WritePin(DHT11_DATA_GPIO_Port, DHT11_DATA_Pin, GPIO_PIN_RESET); 
-    HAL_Delay(20); // 延时 20ms (注意：你原代码注释写了1000ms，那是错的，代码 20 是对的)
+    Delay_us(20000); // 延时 20ms (注意：你原代码注释写了1000ms，那是错的，代码 20 是对的)
     HAL_GPIO_WritePin(DHT11_DATA_GPIO_Port, DHT11_DATA_Pin, GPIO_PIN_SET);   
 
     DHT11_Mode_Input(); // 释放总线，变为输入
-    __disable_irq(); // 关中断防干扰是对的
+    // __disable_irq(); // 关中断防干扰是对的
     // --- 第二步：完整的 3 步握手响应检测 ---
     
     // 2.1 等待 DHT11 拉低 (取代你原先卡死的那个 while)
@@ -77,7 +77,7 @@ uint8_t DHT11_Read_Data(DHT11_Data_TypeDef *DHT11_Data) {
     }
     if(retry >= 100) {
         debug_printf("[dht11.c:] Error: Wait for response LOW timeout\r\n");
-        __enable_irq();
+        // __enable_irq();
         return 1; // 传感器彻底无响应
     }
 
@@ -88,7 +88,7 @@ uint8_t DHT11_Read_Data(DHT11_Data_TypeDef *DHT11_Data) {
     }
     if(retry >= 100) {
         debug_printf("[dht11.c:] Error: DHT11 response LOW duration timeout\r\n");
-        __enable_irq();
+        // __enable_irq();
         return 1; 
     }
 
@@ -99,7 +99,7 @@ uint8_t DHT11_Read_Data(DHT11_Data_TypeDef *DHT11_Data) {
     }
     if(retry >= 100) {
         debug_printf("[dht11.c:] Error: DHT11 response HIGH duration timeout\r\n");
-        __enable_irq();
+        // __enable_irq();
         return 1; 
     }
 
@@ -108,7 +108,7 @@ uint8_t DHT11_Read_Data(DHT11_Data_TypeDef *DHT11_Data) {
     for(uint8_t i = 0; i < 5; i++) {
         buf[i] = DHT11_Read_Byte();
     }
-    __enable_irq();
+    // __enable_irq();
 
     // --- 第四步：校验和提取数据 ---
     if((uint8_t)(buf[0] + buf[1] + buf[2] + buf[3]) == buf[4]) {
@@ -131,11 +131,11 @@ void DHT11_Warmup(DHT11_Data_TypeDef *DHT11_Data) {
     HAL_Delay(2000); 
 
     /* ================= 2. 传感器预热阶段 ================= */
-    printf("DHT11 Waking up...\r\n");
+    debug_printf("DHT11 Waking up...\r\n");
     // 执行一次“空读（Dummy Read）”，专门用来吃掉第一次报错，不用管它的返回值
     DHT11_Read_Data(DHT11_Data); 
 
     // 空读结束后，再次延时 2 秒，满足 DHT11 两次读取的最短间隔
     HAL_Delay(2000); 
-    printf("DHT11 Ready!\r\n");
+    debug_printf("DHT11 Ready!\r\n");
 }

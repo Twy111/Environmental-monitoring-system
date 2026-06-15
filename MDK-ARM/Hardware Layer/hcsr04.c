@@ -30,3 +30,10 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
         }
     }
 }
+
+void HCSR04_Trigger(void) {
+
+    HAL_GPIO_WritePin(HCSR04_TRIG_GPIO_Port, HCSR04_TRIG_Pin, GPIO_PIN_SET);
+    Delay_us(15); 
+    HAL_GPIO_WritePin(HCSR04_TRIG_GPIO_Port, HCSR04_TRIG_Pin, GPIO_PIN_RESET);
+}

@@ -2,6 +2,7 @@
 #define HCSR04_H
 
 #include "main.h"
+#include "Com_delay.h"
 
 typedef enum {
     HCSR04_IDLE = 0,
@@ -19,5 +20,5 @@ typedef struct {
 } HCSR04_InfoTypeDef;
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim);
-
+void HCSR04_Trigger(void);
 #endif /* HCSR04_H */
