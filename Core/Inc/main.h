@@ -61,6 +61,10 @@ void Error_Handler(void);
 #define HCSR04_TRIG_GPIO_Port GPIOA
 #define DHT11_DATA_Pin GPIO_PIN_5
 #define DHT11_DATA_GPIO_Port GPIOA
+#define ESP8266_Tx_Pin GPIO_PIN_9
+#define ESP8266_Tx_GPIO_Port GPIOA
+#define ESP8266_Rx_Pin GPIO_PIN_10
+#define ESP8266_Rx_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 

@@ -8,6 +8,7 @@
 #include "semphr.h"
 #include "com_debug.h"
 #include "Com_delay.h"
+#include "esp8266_mqtt.h"
 
 // 定义一个全局结构体
 typedef struct {

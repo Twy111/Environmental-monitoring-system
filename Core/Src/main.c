@@ -100,6 +100,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_I2C1_Init();
   MX_TIM3_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   DWT_Init();   
   HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_1);

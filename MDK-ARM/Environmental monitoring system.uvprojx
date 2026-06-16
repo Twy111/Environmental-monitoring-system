@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;.\Hardware_Layer;.\common;.\Application_Layer;./freeRTOS/include;./freeRTOS;./freeRTOS/portable</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;./Hardware_Layer;./common;./Application_Layer;./freeRTOS/include;./freeRTOS;./freeRTOS/portable</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -843,6 +843,16 @@
               <FileName>hcsr04.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\Hardware_Layer\hcsr04.h</FilePath>
+            </File>
+            <File>
+              <FileName>esp8266_mqtt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware_Layer\esp8266_mqtt.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp8266_mqtt.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware_Layer\esp8266_mqtt.h</FilePath>
             </File>
           </Files>
         </Group>
