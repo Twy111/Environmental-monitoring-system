@@ -26,7 +26,8 @@
 
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
-
+#include "tim.h"
+extern uint32_t tim_tick;
 /*-----------------------------------------------------------
  * Application specific definitions.
  *
@@ -48,7 +49,7 @@
 #define configMINIMAL_STACK_SIZE	( ( unsigned short ) 128 )
 #define configTOTAL_HEAP_SIZE		( ( size_t ) ( 12 * 1024 ) )
 #define configMAX_TASK_NAME_LEN		( 16 )
-#define configUSE_TRACE_FACILITY	0
+#define configUSE_TRACE_FACILITY	1
 #define configUSE_16_BIT_TICKS		0
 #define configIDLE_SHOULD_YIELD		1
 
@@ -71,6 +72,11 @@ to exclude the API function. */
 See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
 #define configMAX_SYSCALL_INTERRUPT_PRIORITY 	191 /* equivalent to 0xb0, or priority 11. */
 
+// 添加运行时间统计相关的配置
+#define configGENERATE_RUN_TIME_STATS  1
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()  HAL_TIM_Base_Start_IT(&htim3); // 配置计时器以生成运行时间统计信息
+#define portGET_RUN_TIME_COUNTER_VALUE()   (tim_tick) // 获取当前计时器的值
+#define configUSE_STATS_FORMATTING_FUNCTIONS  1 
 
 /* This is the value being used as per the ST library which permits 16
 priority values, 0 to 15.  This must correspond to the

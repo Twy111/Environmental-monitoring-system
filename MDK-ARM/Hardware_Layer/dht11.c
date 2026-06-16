@@ -1,4 +1,6 @@
 #include "dht11.h"
+#include "FreeRTOS.h"
+#include "task.h"
 #include "com_debug.h"
 
 // 复用我们之前写的微秒延时函数 (需确保 main.c 里已经有这个函数，或者把它移到公共的 delay.c 中)
@@ -63,11 +65,12 @@ uint8_t DHT11_Read_Data(DHT11_Data_TypeDef *DHT11_Data) {
     // --- 第一步：主机发送起始信号 ---
     DHT11_Mode_Output();
     HAL_GPIO_WritePin(DHT11_DATA_GPIO_Port, DHT11_DATA_Pin, GPIO_PIN_RESET); 
-    Delay_us(20000); // 延时 20ms (注意：你原代码注释写了1000ms，那是错的，代码 20 是对的)
+    vTaskDelay(pdMS_TO_TICKS(20));
     HAL_GPIO_WritePin(DHT11_DATA_GPIO_Port, DHT11_DATA_Pin, GPIO_PIN_SET);   
 
     DHT11_Mode_Input(); // 释放总线，变为输入
     // __disable_irq(); // 关中断防干扰是对的
+    taskENTER_CRITICAL(); // 进入临界区，禁止中断，防止干扰时序
     // --- 第二步：完整的 3 步握手响应检测 ---
     
     // 2.1 等待 DHT11 拉低 (取代你原先卡死的那个 while)
@@ -76,8 +79,10 @@ uint8_t DHT11_Read_Data(DHT11_Data_TypeDef *DHT11_Data) {
         retry++; Delay_us(1);
     }
     if(retry >= 100) {
+        taskEXIT_CRITICAL(); // 退出临界区，恢复中断
         debug_printf("[dht11.c:] Error: Wait for response LOW timeout\r\n");
         // __enable_irq();
+
         return 1; // 传感器彻底无响应
     }
 
@@ -87,8 +92,10 @@ uint8_t DHT11_Read_Data(DHT11_Data_TypeDef *DHT11_Data) {
         retry++; Delay_us(1);
     }
     if(retry >= 100) {
+        taskEXIT_CRITICAL(); // 退出临界区，恢复中断
         debug_printf("[dht11.c:] Error: DHT11 response LOW duration timeout\r\n");
         // __enable_irq();
+
         return 1; 
     }
 
@@ -98,6 +105,7 @@ uint8_t DHT11_Read_Data(DHT11_Data_TypeDef *DHT11_Data) {
         retry++; Delay_us(1);
     }
     if(retry >= 100) {
+        taskEXIT_CRITICAL(); // 退出临界区，恢复中断
         debug_printf("[dht11.c:] Error: DHT11 response HIGH duration timeout\r\n");
         // __enable_irq();
         return 1; 
@@ -109,7 +117,7 @@ uint8_t DHT11_Read_Data(DHT11_Data_TypeDef *DHT11_Data) {
         buf[i] = DHT11_Read_Byte();
     }
     // __enable_irq();
-
+    taskEXIT_CRITICAL(); // 退出临界区，恢复中断
     // --- 第四步：校验和提取数据 ---
     if((uint8_t)(buf[0] + buf[1] + buf[2] + buf[3]) == buf[4]) {
         DHT11_Data->hum_int  = buf[0];
@@ -118,24 +126,22 @@ uint8_t DHT11_Read_Data(DHT11_Data_TypeDef *DHT11_Data) {
         DHT11_Data->temp_dec = buf[3];
         return 0; // 读取成功
     } else {
+
         debug_printf("[dht11.c:] DHT11 checksum error\r\n");
         return 1; // 校验失败
     }
 }
+
 void DHT11_Warmup(DHT11_Data_TypeDef *DHT11_Data) {
-    // 确保 DHT11 引脚被拉高，释放总线
     DHT11_Mode_Output();
     HAL_GPIO_WritePin(DHT11_DATA_GPIO_Port, DHT11_DATA_Pin, GPIO_PIN_SET);
 
-    // 延时 2 秒，等待 DHT11 跨越上电不稳定期
-    HAL_Delay(2000); 
+    // 已经处于 RTOS 任务中，必须用 vTaskDelay
+    vTaskDelay(pdMS_TO_TICKS(2000)); 
 
-    /* ================= 2. 传感器预热阶段 ================= */
     debug_printf("DHT11 Waking up...\r\n");
-    // 执行一次“空读（Dummy Read）”，专门用来吃掉第一次报错，不用管它的返回值
     DHT11_Read_Data(DHT11_Data); 
 
-    // 空读结束后，再次延时 2 秒，满足 DHT11 两次读取的最短间隔
-    HAL_Delay(2000); 
+    vTaskDelay(pdMS_TO_TICKS(2000)); 
     debug_printf("DHT11 Ready!\r\n");
 }

@@ -65,7 +65,6 @@ void SystemClock_Config(void);
 //         __NOP();
 //     }
 // }
-extern DHT11_Data_TypeDef env_data;
 /* USER CODE END 0 */
 
 /**
@@ -100,10 +99,11 @@ int main(void)
   MX_TIM2_Init();
   MX_USART2_UART_Init();
   MX_I2C1_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   DWT_Init();   
   HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_1);
-  DHT11_Warmup(&env_data);
+  // DHT11_Warmup(&env_data);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -158,7 +158,7 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+uint32_t tim_tick = 0;
 /* USER CODE END 4 */
 
 /**
@@ -172,7 +172,10 @@ void SystemClock_Config(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
-
+  if (htim->Instance == TIM3)
+  {
+    tim_tick++;
+  }
   /* USER CODE END Callback 0 */
   if (htim->Instance == TIM4)
   {

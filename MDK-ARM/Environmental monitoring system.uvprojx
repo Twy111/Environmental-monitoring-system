@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;.\Hardware Layer;./common;.\Application Layer;.\freeRTOS\include;.\freeRTOS;.\freeRTOS\portable</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;.\Hardware_Layer;.\common;.\Application_Layer;./freeRTOS/include;./freeRTOS;./freeRTOS/portable</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -787,12 +787,12 @@
             <File>
               <FileName>App_FreeRTOS_Task.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Application Layer\App_FreeRTOS_Task.c</FilePath>
+              <FilePath>.\Application_Layer\App_FreeRTOS_Task.c</FilePath>
             </File>
             <File>
               <FileName>App_FreeRTOS_Task.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\Application Layer\App_FreeRTOS_Task.h</FilePath>
+              <FilePath>.\Application_Layer\App_FreeRTOS_Task.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -825,24 +825,24 @@
           <GroupName>Bsp</GroupName>
           <Files>
             <File>
-              <FileName>hcsr04.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Hardware Layer\hcsr04.c</FilePath>
-            </File>
-            <File>
-              <FileName>hcsr04.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\Hardware Layer\hcsr04.h</FilePath>
-            </File>
-            <File>
               <FileName>dht11.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Hardware Layer\dht11.c</FilePath>
+              <FilePath>.\Hardware_Layer\dht11.c</FilePath>
             </File>
             <File>
               <FileName>dht11.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\Hardware Layer\dht11.h</FilePath>
+              <FilePath>.\Hardware_Layer\dht11.h</FilePath>
+            </File>
+            <File>
+              <FileName>hcsr04.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware_Layer\hcsr04.c</FilePath>
+            </File>
+            <File>
+              <FileName>hcsr04.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware_Layer\hcsr04.h</FilePath>
             </File>
           </Files>
         </Group>
