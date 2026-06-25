@@ -41,6 +41,7 @@ void App_FreeRTOS_Start(void)
 {
     // 在创建任务前，必须先创建好互斥锁！
     Data_Mutex = xSemaphoreCreateMutex();
+    xSemaphoreGive(Data_Mutex); // 初始化互斥锁为可用状态 
     
     if (Data_Mutex != NULL) {
         xTaskCreate(HC_SR04_Task, "HC_SR04", HC_SR04_TASK_STACK_SIZE, NULL, HC_SR04_TASK_PRIORITY, &HC_SR04_Task_Handle);
